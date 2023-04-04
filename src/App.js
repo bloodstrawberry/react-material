@@ -1,23 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import { Route, Link, Routes } from "react-router-dom";
+
+import Button from '@mui/material/Button';
+
+import Home from "./page/Home";
+import Router1 from "./page/Router1";
+import Router2 from "./page/Router2";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+      <div>
+      <Button color="secondary">Secondary</Button>
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          <Link to="/">홈</Link>
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <p>
+          <Link to="/r1">Router1</Link>
+        </p>
+        <p>
+          <Link to="/r2">Router2</Link>
+        </p>
+      </div>
+      <div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/r1" element={<Router1 />} />
+          <Route path="/r2" element={<Router2 />} />
+        </Routes>
+      </div>
     </div>
   );
 }
