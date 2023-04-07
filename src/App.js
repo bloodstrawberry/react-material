@@ -1,29 +1,28 @@
 import { Route, Link, Routes } from "react-router-dom";
 
-import Button from '@mui/material/Button';
+import './App.css';
 
-import Home from "./page/Home";
+import ButtonTest from "./page/ButtonTest";
 import Router1 from "./page/Router1";
 import Router2 from "./page/Router2";
 
 function App() {
   return (
     <div className="App">
-      <div>
-      <Button color="secondary">Secondary</Button>
-        <p>
-          <Link to="/">홈</Link>
-        </p>
-        <p>
-          <Link to="/r1">Router1</Link>
-        </p>
-        <p>
-          <Link to="/r2">Router2</Link>
-        </p>
+      <div className="router">
+        <span>
+          <Link to="/">Button Test</Link>
+        </span>
+        <span>
+          <Link to="/r1">2</Link>
+        </span>
+        <span>
+          <Link to="/r2">3</Link>
+        </span>
       </div>
       <div>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<ButtonTest />} />
           <Route path="/r1" element={<Router1 />} />
           <Route path="/r2" element={<Router2 />} />
         </Routes>
