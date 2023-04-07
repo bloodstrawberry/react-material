@@ -11,7 +11,7 @@ function App() {
     <div className="App">
       <div className="router">
         <span>
-          <Link to="/">Button Test</Link>
+          <Link to="/btn">Button Test</Link>
         </span>
         <span>
           <Link to="/r1">2</Link>
@@ -22,7 +22,7 @@ function App() {
       </div>
       <div>
         <Routes>
-          <Route path="/" element={<ButtonTest />} />
+          <Route path="/btn" element={<ButtonTest />} />
           <Route path="/r1" element={<Router1 />} />
           <Route path="/r2" element={<Router2 />} />
         </Routes>
