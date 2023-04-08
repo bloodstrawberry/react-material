@@ -2,9 +2,33 @@ import React from "react";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import WcIcon from "@mui/icons-material/Wc";
+
 const ButtonTest = () => {
   return (
     <div>
+      <Stack direction="row" spacing={1}>
+        <IconButton aria-label="delete">
+          <DeleteIcon />
+        </IconButton>
+        <IconButton aria-label="delete" color="primary">
+          <WcIcon>화장실</WcIcon>
+        </IconButton>
+        <Button
+          sx={{
+            m: 1,
+            color: "red",
+            borderColor: "pink",
+            ":hover": { borderColor: "red" },
+          }}
+          variant="outlined"
+          startIcon={<WcIcon />}
+        >
+          화장실
+        </Button>
+      </Stack>
       <Button
         sx={{
           m: 1,
@@ -13,6 +37,18 @@ const ButtonTest = () => {
           ":hover": { borderColor: "black" },
         }}
         variant="outlined"
+      >
+        Custom Button
+      </Button>
+      <Button
+        sx={{
+          m: 1,
+          color: "black",
+          borderColor: "gray",
+          ":hover": { borderColor: "black" },
+        }}
+        variant="outlined"
+        //startIcon={<MapIcon/>}
       >
         Custom Button
       </Button>
