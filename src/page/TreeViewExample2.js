@@ -5,9 +5,96 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TreeItem from "@mui/lab/TreeItem";
 
+let localData = {
+  child: [
+    {
+      label: "D:",
+      nodeId: 0,
+      child: [
+        {
+          label: "github",
+          nodeId: 1,
+          child: [
+            {
+              label: "globfiles",
+              nodeId: 2,
+              child: [
+                {
+                  label: "abc1",
+                  nodeId: 3,
+                  child: [
+                    { label: "abc1_jsonfile1.json", nodeId: 4 },
+                    { label: "abc1_jsonfile2.json", nodeId: 5 },
+                    { label: "abc1_textfile1.txt", nodeId: 6 },
+                    { label: "abc1_textfile2.txt", nodeId: 7 },
+                    {
+                      label: "abc2",
+                      nodeId: 8,
+                      child: [
+                        { label: "abc2_jsonfile.json", nodeId: 12 },
+                        {
+                          label: "abc3",
+                          nodeId: 13,
+                          child: [
+                            { label: "abc3_jsonfile.json", nodeId: 14 },
+                            { label: "abc3_textfile.txt", nodeId: 15 },
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      label: "abc2_2",
+                      nodeId: 9,
+                      child: [
+                        { label: "abc2_2_jsonfile.json", nodeId: 10 },
+                        { label: "abc2_2_textfile.txt", nodeId: 11 },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  label: "def1",
+                  nodeId: 16,
+                  child: [
+                    { label: "def_jsonfile1.json", nodeId: 17 },
+                    { label: "def_jsonfile2.json", nodeId: 18 },
+                    { label: "def_textfile1.txt", nodeId: 19 },
+                    { label: "def_textfile2.txt", nodeId: 20 },
+                  ],
+                },
+                {
+                  label: "ghi1",
+                  nodeId: 21,
+                  child: [
+                    {
+                      label: "ghi2",
+                      nodeId: 22,
+                      child: [
+                        { label: "ghi2_jsonfile1.json", nodeId: 23 },
+                        { label: "ghi2_jsonfile2.json", nodeId: 24 },
+                        { label: "ghi2_textfile1.txt", nodeId: 25 },
+                        { label: "ghi2_textfile2.txt", nodeId: 26 },
+                      ],
+                    },
+                  ],
+                },
+                { label: "jsonfile1.json", nodeId: 27 },
+                { label: "jsonfile2.json", nodeId: 28 },
+                { label: "textfile1.txt", nodeId: 29 },
+                { label: "textfile2.txt", nodeId: 30 },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
 const TreeViewExample2 = () => {
   const [treeInfo, setTreeInfo] = useState({});
 
+  /*
   let tmpTreeInfo = {};
   let nodeId = 0;
   const appendChild = (arr, info) => {
@@ -34,13 +121,16 @@ const TreeViewExample2 = () => {
     console.log(tmpTreeInfo);
     setTreeInfo(tmpTreeInfo);
   };
+  */
 
   const getFiles = () => {
-    let server = `http://192.168.55.120:3002`;
-    let path = `D:\\github\\globfiles\\**`;
-    fetch(`${server}/useGlob?path=${path}`)
-      .then((res) => res.json())
-      .then((data) => makeDirectories(data.findPath));
+    setTreeInfo(localData);
+    return;
+    // let server = `http://192.168.55.120:3002`;
+    // let path = `D:\\github\\globfiles\\**`;
+    // fetch(`${server}/useGlob?path=${path}`)
+    //   .then((res) => res.json())
+    //   .then((data) => makeDirectories(data.findPath));
   };
 
   const makeTreeItem = (info, parent) => {
