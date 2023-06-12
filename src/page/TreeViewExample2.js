@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+
 import TreeView from "@mui/lab/TreeView";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -89,10 +92,13 @@ let localData = {
       ],
     },
   ],
-}
+};
 
 const TreeViewExample2 = () => {
   const [treeInfo, setTreeInfo] = useState({});
+
+  const [expanded, setExpanded] = React.useState([]);
+  const [selected, setSelected] = React.useState([]);
 
   /*
   let tmpTreeInfo = {};
@@ -152,10 +158,47 @@ const TreeViewExample2 = () => {
     getFiles();
   }, []);
 
+  const handleToggle = (event, nodeIds) => {
+    setExpanded(nodeIds);
+  };
+
+  const handleSelect = (event, nodeIds) => {
+    setSelected(nodeIds);
+  };
+
+  const handleExpandClick = () => {
+    let fullExpanded = [];
+    for(let i = 0; i <= 30; i++) fullExpanded.push(i.toString());
+
+    setExpanded((oldExpanded) =>
+      oldExpanded.length === 0 ? fullExpanded : []
+    );
+  };
+
+  const handleSelectClick = () => {
+    setSelected((oldSelected) =>
+      oldSelected.length === 0
+        ? ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        : []
+    );
+  };
+
   return (
     <div>
       {/* <button onClick={getFiles}>test</button> */}
+      <Box sx={{ mb: 1 }}>
+        <Button onClick={handleExpandClick}>
+          {expanded.length === 0 ? 'Expand all' : 'Collapse all'}
+        </Button>
+        <Button onClick={handleSelectClick}>
+          {selected.length === 0 ? 'Select all' : 'Unselect all'}
+        </Button>
+      </Box>
       <TreeView
+        expanded={expanded}
+        selected={selected}
+        onNodeToggle={handleToggle}
+        onNodeSelect={handleSelect}
         aria-label="file system navigator"
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}

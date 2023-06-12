@@ -96,33 +96,44 @@ const FileBrowser = () => {
   const [treeInfo, setTreeInfo] = useState({});
   const [fileUi, setFileUI] = useState([]);
 
-  let tmpTreeInfo = {};
+  const [idMap, setIdMap] = useState({});
+  const [expanded, setExpanded] = useState([]);
+  const [selected, setSelected] = useState([]);
+
   let nodeId = 0;
-  const appendChild = (arr, info) => {
+  const appendChild = (arr, info, path, tmpIdMap) => {
     if (arr.child === undefined) arr.child = [];
     if (arr.child.findIndex((item) => item.label === info) === -1) {
+      console.log(path);
       arr.child.push({ label: info, nodeId });
+      tmpIdMap[path] = nodeId.toString();
       nodeId++;
     }
   };
 
   const makeDirectories = (directories) => {
-    tmpTreeInfo = {};
-    for (let d of directories) {
+    let tmpTreeInfo = {};
+    let tmpIdMap = {};
+
+    let dir = ["D:", "D:/github", ...directories];
+    console.log(dir);
+
+    for (let d of dir) {
       let split = d.split("/");
       let len = split.length;
       let current = tmpTreeInfo;
 
       for (let i = 0; i < len; i++) {
-        appendChild(current, split[i]);
+        appendChild(current, split[i], d, tmpIdMap);
         current = current.child.find((item) => item.label === split[i]);
       }
     }
 
-    console.log(tmpTreeInfo);
+    //console.log(tmpTreeInfo);
+    setIdMap(tmpIdMap);
     setTreeInfo(tmpTreeInfo);
   };
-  
+
   const getFiles = () => {
     // setTreeInfo(localData);
     // return;
@@ -134,16 +145,31 @@ const FileBrowser = () => {
       .then((data) => makeDirectories(data.findPath));
   };
 
+  const isFile = (path) => {
+    let spt = path.split("/");
+    return spt[spt.length - 1].includes(".");
+  };
+
+  const sortFileUI = (path) => {
+    let dir = path.filter((val) => isFile(val) === false);
+    let files = path.filter((val) => isFile(val));
+
+    dir.sort();
+    files.sort();
+
+    setFileUI([...dir, ...files]);
+  };
+
   const getFilesForFileBrowser = (path) => {
     let server = `http://192.168.55.120:3002`;
-
+    
     /* /D:/... 앞의 / 삭제 */
-    path = path.substring(1, path.length); 
-
+    path = path.substring(1, path.length);
+    
     fetch(`${server}/useGlob?path=${path}/*`)
       .then((res) => res.json())
-      .then((data) => setFileUI(data.findPath));
-  }
+      .then((data) => sortFileUI(data.findPath));
+  };
 
   const makeTreeItem = (info, parent) => {
     if (info.child === undefined) return;
@@ -164,6 +190,14 @@ const FileBrowser = () => {
     getFiles();
   }, []);
 
+  const handleToggle = (event, ids) => {
+    setExpanded(ids);
+  }
+
+  const handleSelect = (event, ids) => {
+    setSelected(ids);
+  }
+
   return (
     <div
       style={{
@@ -175,8 +209,18 @@ const FileBrowser = () => {
     >
       {/* <button onClick={getFiles}>test</button> */}
       <div>
-        <a href="https://bloodstrawberry.tistory.com/1175" target="_blank" rel="noreferrer">Node Server 구현 필요</a>
+        <a
+          href="https://bloodstrawberry.tistory.com/1175"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Node Server 구현 필요
+        </a>
         <TreeView
+          expanded={expanded}
+          onNodeToggle={handleToggle}
+          selected={selected}
+          onNodeSelect={handleSelect}
           aria-label="file system navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
@@ -188,7 +232,14 @@ const FileBrowser = () => {
       </div>
       <div style={{ borderRight: "2px solid black" }} />
       <div>
-         {fileUi.map((f, idx) => <FileUI key={idx} pathInfo={f}/>)}
+        {fileUi.map((f, idx) => (
+          <FileUI
+            key={idx}
+            pathInfo={f}
+            idMap={idMap}
+            tvfunc={{ expanded, setExpanded, setSelected, sortFileUI }}
+          />
+        ))}
       </div>
     </div>
   );
