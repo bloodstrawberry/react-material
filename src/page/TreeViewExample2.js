@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 
 import TreeView from "@mui/lab/TreeView";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -168,7 +168,7 @@ const TreeViewExample2 = () => {
 
   const handleExpandClick = () => {
     let fullExpanded = [];
-    for(let i = 0; i <= 30; i++) fullExpanded.push(i.toString());
+    for (let i = 0; i <= 30; i++) fullExpanded.push(i.toString());
 
     setExpanded((oldExpanded) =>
       oldExpanded.length === 0 ? fullExpanded : []
@@ -185,13 +185,12 @@ const TreeViewExample2 = () => {
 
   return (
     <div>
-      {/* <button onClick={getFiles}>test</button> */}
       <Box sx={{ mb: 1 }}>
         <Button onClick={handleExpandClick}>
-          {expanded.length === 0 ? 'Expand all' : 'Collapse all'}
+          {expanded.length === 0 ? "Expand all" : "Collapse all"}
         </Button>
         <Button onClick={handleSelectClick}>
-          {selected.length === 0 ? 'Select all' : 'Unselect all'}
+          {selected.length === 0 ? "Select all" : "Unselect all"}
         </Button>
       </Box>
       <TreeView

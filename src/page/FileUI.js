@@ -52,28 +52,16 @@ const makeExpandedView = (pathInfo, idMap, tvfunc) => {
 
     tmp.push(idMap[tmpPath]);
   }
-  
+
   tvfunc.setExpanded([...tmp]);
 } 
 
-const download = (pathInfo, idMap, tvfunc) => {
+const download = (pathInfo) => {
   if (pathInfo === undefined || pathInfo === "") return;
 
   let fileName = getFileName(pathInfo);
 
-  if (fileName.includes(".") === false) { 
-    makeExpandedView(pathInfo, idMap, tvfunc);
-    tvfunc.setSelected(idMap[pathInfo]);
-
-    let server = `http://192.168.55.120:3002`;
-    let path = pathInfo + "/*";
-
-    fetch(`${server}/useGlob?path=${path}`)
-      .then((res) => res.json())
-      .then((data) => tvfunc.sortFileUI(data.findPath));
-
-    return; // 폴더인 경우
-  }
+  if (fileName.includes(".") === false) return; // 폴더인 경우
 
   let server = `http://192.168.55.120:3002`;
   axios
@@ -85,6 +73,24 @@ const download = (pathInfo, idMap, tvfunc) => {
     })
     .catch((error) => console.log(error));
 };
+
+const getFileBrowser = (pathInfo, idMap, tvfunc) => {
+  if (pathInfo === undefined || pathInfo === "") return;
+
+  let fileName = getFileName(pathInfo);
+
+  if (fileName.includes(".")) return;
+
+  makeExpandedView(pathInfo, idMap, tvfunc);
+  tvfunc.setSelected(idMap[pathInfo]);
+
+  let server = `http://192.168.55.120:3002`;
+  let path = pathInfo + "/*";
+
+  fetch(`${server}/useGlob?path=${path}`)
+    .then((res) => res.json())
+    .then((data) => tvfunc.sortFileUI(data.findPath));
+}
 
 const FileUI = ({ pathInfo, idMap, tvfunc }) => {
   return (
@@ -99,7 +105,8 @@ const FileUI = ({ pathInfo, idMap, tvfunc }) => {
         cursor: "pointer",
         verticalAlign: "top",
       }}
-      onClick={() => download(pathInfo, idMap, tvfunc)}
+      onClick={() => download(pathInfo)}
+      onDoubleClick={() => getFileBrowser(pathInfo, idMap, tvfunc)}
     >
       {getMuiIcon(getFileName(pathInfo))}
       <div style={{ width: "110px", height: "40px", wordBreak: "break-all" }}>

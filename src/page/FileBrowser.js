@@ -1,96 +1,13 @@
 import React, { useEffect, useState } from "react";
 
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+
 import TreeView from "@mui/lab/TreeView";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TreeItem from "@mui/lab/TreeItem";
 import FileUI from "./FileUI";
-
-// let localData = {
-//   child: [
-//     {
-//       label: "D:",
-//       nodeId: 0,
-//       child: [
-//         {
-//           label: "github",
-//           nodeId: 1,
-//           child: [
-//             {
-//               label: "globfiles",
-//               nodeId: 2,
-//               child: [
-//                 {
-//                   label: "abc1",
-//                   nodeId: 3,
-//                   child: [
-//                     { label: "abc1_jsonfile1.json", nodeId: 4 },
-//                     { label: "abc1_jsonfile2.json", nodeId: 5 },
-//                     { label: "abc1_textfile1.txt", nodeId: 6 },
-//                     { label: "abc1_textfile2.txt", nodeId: 7 },
-//                     {
-//                       label: "abc2",
-//                       nodeId: 8,
-//                       child: [
-//                         { label: "abc2_jsonfile.json", nodeId: 12 },
-//                         {
-//                           label: "abc3",
-//                           nodeId: 13,
-//                           child: [
-//                             { label: "abc3_jsonfile.json", nodeId: 14 },
-//                             { label: "abc3_textfile.txt", nodeId: 15 },
-//                           ],
-//                         },
-//                       ],
-//                     },
-//                     {
-//                       label: "abc2_2",
-//                       nodeId: 9,
-//                       child: [
-//                         { label: "abc2_2_jsonfile.json", nodeId: 10 },
-//                         { label: "abc2_2_textfile.txt", nodeId: 11 },
-//                       ],
-//                     },
-//                   ],
-//                 },
-//                 {
-//                   label: "def1",
-//                   nodeId: 16,
-//                   child: [
-//                     { label: "def_jsonfile1.json", nodeId: 17 },
-//                     { label: "def_jsonfile2.json", nodeId: 18 },
-//                     { label: "def_textfile1.txt", nodeId: 19 },
-//                     { label: "def_textfile2.txt", nodeId: 20 },
-//                   ],
-//                 },
-//                 {
-//                   label: "ghi1",
-//                   nodeId: 21,
-//                   child: [
-//                     {
-//                       label: "ghi2",
-//                       nodeId: 22,
-//                       child: [
-//                         { label: "ghi2_jsonfile1.json", nodeId: 23 },
-//                         { label: "ghi2_jsonfile2.json", nodeId: 24 },
-//                         { label: "ghi2_textfile1.txt", nodeId: 25 },
-//                         { label: "ghi2_textfile2.txt", nodeId: 26 },
-//                       ],
-//                     },
-//                   ],
-//                 },
-//                 { label: "jsonfile1.json", nodeId: 27 },
-//                 { label: "jsonfile2.json", nodeId: 28 },
-//                 { label: "textfile1.txt", nodeId: 29 },
-//                 { label: "textfile2.txt", nodeId: 30 },
-//               ],
-//             },
-//           ],
-//         },
-//       ],
-//     },
-//   ],
-// };
 
 const FileBrowser = () => {
   const [treeInfo, setTreeInfo] = useState({});
@@ -100,11 +17,12 @@ const FileBrowser = () => {
   const [expanded, setExpanded] = useState([]);
   const [selected, setSelected] = useState([]);
 
+  const [id, setId] = useState(0);
+
   let nodeId = 0;
   const appendChild = (arr, info, path, tmpIdMap) => {
     if (arr.child === undefined) arr.child = [];
     if (arr.child.findIndex((item) => item.label === info) === -1) {
-      console.log(path);
       arr.child.push({ label: info, nodeId });
       tmpIdMap[path] = nodeId.toString();
       nodeId++;
@@ -116,7 +34,6 @@ const FileBrowser = () => {
     let tmpIdMap = {};
 
     let dir = ["D:", "D:/github", ...directories];
-    console.log(dir);
 
     for (let d of dir) {
       let split = d.split("/");
@@ -129,9 +46,9 @@ const FileBrowser = () => {
       }
     }
 
-    //console.log(tmpTreeInfo);
     setIdMap(tmpIdMap);
     setTreeInfo(tmpTreeInfo);
+    setId(nodeId);
   };
 
   const getFiles = () => {
@@ -162,10 +79,10 @@ const FileBrowser = () => {
 
   const getFilesForFileBrowser = (path) => {
     let server = `http://192.168.55.120:3002`;
-    
+
     /* /D:/... 앞의 / 삭제 */
     path = path.substring(1, path.length);
-    
+
     fetch(`${server}/useGlob?path=${path}/*`)
       .then((res) => res.json())
       .then((data) => sortFileUI(data.findPath));
@@ -192,17 +109,26 @@ const FileBrowser = () => {
 
   const handleToggle = (event, ids) => {
     setExpanded(ids);
-  }
+  };
 
   const handleSelect = (event, ids) => {
     setSelected(ids);
-  }
+  };
+
+  const handleExpandClick = () => {
+    let fullExpanded = [];
+    for (let i = 0; i <= id; i++) fullExpanded.push(i.toString());
+
+    setExpanded((oldExpanded) =>
+      oldExpanded.length === 0 ? fullExpanded : []
+    );
+  };
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "20% 1% auto",
+        gridTemplateColumns: "25% 1% auto",
         gridGap: "25px",
         width: "100%",
       }}
@@ -216,6 +142,11 @@ const FileBrowser = () => {
         >
           Node Server 구현 필요
         </a>
+        <Box sx={{ mb: 1 }}>
+          <Button onClick={handleExpandClick}>
+            {expanded.length === 0 ? "Expand all" : "Collapse all"}
+          </Button>
+        </Box>
         <TreeView
           expanded={expanded}
           onNodeToggle={handleToggle}
