@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/react-material/static/css/main.811126a6.css",
-    "main.js": "/react-material/static/js/main.e3fcaa50.js",
+    "main.css": "/react-material/static/css/main.e75e68bc.css",
+    "main.js": "/react-material/static/js/main.4b09ab74.js",
     "static/js/496.8c2d2e0f.chunk.js": "/react-material/static/js/496.8c2d2e0f.chunk.js",
     "index.html": "/react-material/index.html",
-    "main.811126a6.css.map": "/react-material/static/css/main.811126a6.css.map",
-    "main.e3fcaa50.js.map": "/react-material/static/js/main.e3fcaa50.js.map",
+    "main.e75e68bc.css.map": "/react-material/static/css/main.e75e68bc.css.map",
+    "main.4b09ab74.js.map": "/react-material/static/js/main.4b09ab74.js.map",
     "496.8c2d2e0f.chunk.js.map": "/react-material/static/js/496.8c2d2e0f.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.811126a6.css",
-    "static/js/main.e3fcaa50.js"
+    "static/css/main.e75e68bc.css",
+    "static/js/main.4b09ab74.js"
   ]
 }
