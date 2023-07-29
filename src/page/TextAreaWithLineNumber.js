@@ -1,3 +1,7 @@
+
+// https://webtips.dev/add-line-numbers-to-html-textarea
+// https://developer.mozilla.org/ko/docs/Web/CSS/CSS_counter_styles/Using_CSS_counters
+
 import React, { useEffect } from "react";
 
 import "../css/TextAreaWithLineNumber.css";
@@ -37,8 +41,8 @@ const TextAreaWithLineNumber = () => {
 
   return (
     <div>
-      <div class="editor">
-        <div class="line-numbers">
+      <div className="editor">
+        <div className="line-numbers">
           <span></span>
         </div>
         <textarea></textarea>

@@ -1,7 +1,64 @@
-.router > span {
-  margin: 10px;
+.router>span {
+    margin: 10px;
 }
 
 .router {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+@keyframes typing {
+    from {
+        width: 0
+    }
+}
+
+@keyframes caret {
+    50% {
+        border-right-color: transparent;
+    }
+}
+
+h1 {
+    font: bold 200% Consolas, Monaco, monospace;
+    /*width: 8.25em;*/
+    width: 15ch;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: .05em solid;
+    animation: typing 8s steps(15),
+        caret 1s steps(1) infinite;
+}
+
+pre {
+  padding: 10px;
+}
+
+pre:nth-of-type(2) {
+    tab-size: 2
+}
+
+pre:nth-of-type(3) {
+    tab-size: 4
+}
+
+pre:nth-of-type(4) {
+    tab-size: 0
+}
+
+code {
+    font: inherit;
+}
+
+.markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0px;
+}
+
+@media (max-width: 767px) {
+    .markdown-body {
+        padding: 15px;
+    }
 }

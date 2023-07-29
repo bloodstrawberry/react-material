@@ -10,10 +10,10 @@ import { withStyles } from "@mui/styles";
 const MyTreeItem = withStyles({
   root: {
     "&.MuiTreeItem-root > .MuiTreeItem-content:hover": {
-      background: "blue",
+      background: "red",
     },
     "&.MuiTreeItem-root > .MuiTreeItem-content:hover > .MuiTreeItem-label": {
-      background: "skyblue",
+      background: "pink",
     },
     "&.MuiTreeItem-root > .Mui-selected": {
       background: "grey",

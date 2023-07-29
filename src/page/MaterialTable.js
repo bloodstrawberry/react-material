@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useState } from "react";
 import MaterialReactTable from "material-react-table";
 
 //nested data is ok, see accessorKeys in ColumnDef below
@@ -56,61 +56,95 @@ const MaterialTable = () => {
     return city;
   };
 
-  //should be memoized or stable
-  const columns = useMemo(
-    () => [
-      {
-        accessorKey: "name.firstName", //access nested data with dot notation
-        header: "First Name",
-        size: 200,
+  let columns = [
+    {
+      accessorKey: "name.firstName", //access nested data with dot notation
+      header: "First Name",
+      size: 10,
+    },
+    {
+      accessorKey: "name.lastName",
+      header: "Last Name",
+      size: 10,
+    },
+    {
+      accessorKey: "address", //normal accessorKey
+      header: "Address",
+    },
+    {
+      accessorKey: "city",
+      header: "City",
+      Cell: ({ renderedCellValue, row }) =>
+        makeBlue(renderedCellValue, row._valuesCache["name.lastName"]),
+    },
+    {
+      accessorKey: "state",
+      header: "State",
+      Cell: ({ renderedCellValue }) => {
+        return <span style={{ color: "red" }}>{renderedCellValue}</span>;
       },
-      {
-        accessorKey: "name.lastName",
-        header: "Last Name",
-      },
-      {
-        accessorKey: "address", //normal accessorKey
-        header: "Address",
-      },
-      {
-        accessorKey: "city",
-        header: "City",
-        Cell: ({ renderedCellValue, row }) =>
-          makeBlue(renderedCellValue, row._valuesCache["name.lastName"]),
-      },
-      {
-        accessorKey: "state",
-        header: "State",
-        Cell: ({ renderedCellValue }) => {
-          return <span style={{ color: "red" }}>{renderedCellValue}</span>;
-        },
-      },
-    ],
-    []
+    },
+  ];
+
+  const [columnOrder, setColumnOrder] = useState(
+    columns.map((c) => c.accessorKey)
   );
 
+  const ACCESSOR_KEY = "ACCESSOR_KEY";
+
+  const initOrdering = () => {
+    let item = localStorage.getItem(ACCESSOR_KEY);
+
+    if (item === null) return columns.map((c) => c.accessorKey);
+
+    let ordering = JSON.parse(item);
+    return ordering;
+  };
+
+  const handleColumnOrderChange = (value) => {
+    setColumnOrder(value);
+
+    console.log(value);
+
+    localStorage.setItem(ACCESSOR_KEY, JSON.stringify([...value]));
+  };
+
   return (
-    <MaterialReactTable
-      muiTableHeadCellProps={{
-        sx: {
-          backgroundColor: "yellow",
-          BorderStyle: "solid",
-          borderWidth: "1px 0px 1px 0px",
-          borderColor: "black black black black",
-        },
-      }}
-      muiTablePaperProps={{
-        elevation: 10, // shadow effect
-        sx: {
-          margin: "0 auto",
-          width: "80%",
-          border: "1px solid black",
-        },
-      }}
-      columns={columns}
-      data={data}
-      enablePinning
-    />
+    <div>
+      <MaterialReactTable
+        muiTableHeadCellProps={{
+          sx: {
+            backgroundColor: "yellow",
+            BorderStyle: "solid",
+            borderWidth: "1px 0px 1px 0px",
+            borderColor: "black black black black",
+          },
+        }}
+        muiTablePaperProps={{
+          elevation: 10, // shadow effect
+          sx: {
+            margin: "0 auto",
+            width: "80%",
+            border: "1px solid black",
+          },
+        }}
+        muiTableBodyProps={{
+          sx: {
+            "& tr:nth-of-type(odd)": {
+              backgroundColor: "skyblue",
+            },
+          },
+        }}
+        columns={columns}
+        initialState={{
+          columnOrder: initOrdering,
+        }}
+        data={data}
+        enablePinning
+        enableColumnOrdering
+        onColumnOrderChange={handleColumnOrderChange}
+      />
+    </div>
   );
 };
 

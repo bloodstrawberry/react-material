@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -6,8 +6,32 @@ import Button from "@mui/material/Button";
 import TreeView from "@mui/lab/TreeView";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import TreeItem from "@mui/lab/TreeItem";
 import FileUI from "./FileUI";
+
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+
+
+import MyTreeItem from "@mui/lab/TreeItem";
+import { withStyles } from "@mui/styles";
+
+const TreeItem = withStyles({
+  root: {
+    "&.MuiTreeItem-root > .MuiTreeItem-content:hover": {
+      background: "red",
+    },
+    "&.MuiTreeItem-root > .MuiTreeItem-content:hover > .MuiTreeItem-label": {
+      background: "pink",
+    },
+    "&.MuiTreeItem-root > .Mui-selected": {
+      background: "grey",
+    },
+    "@media (hover: none)": {
+      backgroundColor: "transparent",
+    },
+  },
+})(MyTreeItem);
 
 const FileBrowser = () => {
   const [treeInfo, setTreeInfo] = useState({});
@@ -18,6 +42,11 @@ const FileBrowser = () => {
   const [selected, setSelected] = useState([]);
 
   const [id, setId] = useState(0);
+
+  const [value, setValue] = useState(null);
+  const [dirList, setDirList] = useState([]);
+
+  const treeFocus = useRef([]);
 
   let nodeId = 0;
   const appendChild = (arr, info, path, tmpIdMap) => {
@@ -46,6 +75,7 @@ const FileBrowser = () => {
       }
     }
 
+    setDirList(directories);
     setIdMap(tmpIdMap);
     setTreeInfo(tmpTreeInfo);
     setId(nodeId);
@@ -83,6 +113,8 @@ const FileBrowser = () => {
     /* /D:/... 앞의 / 삭제 */
     path = path.substring(1, path.length);
 
+    setValue(path);
+
     fetch(`${server}/useGlob?path=${path}/*`)
       .then((res) => res.json())
       .then((data) => sortFileUI(data.findPath));
@@ -90,11 +122,11 @@ const FileBrowser = () => {
 
   const makeTreeItem = (info, parent) => {
     if (info.child === undefined) return;
-
     return info.child.map((item, idx) => (
       <TreeItem
         key={idx}
         nodeId={item.nodeId.toString()}
+        ref={(val) => (treeFocus.current[item.nodeId] = val)}
         label={item.label}
         onClick={() => getFilesForFileBrowser(`${parent}/${item.label}`)}
       >
@@ -107,7 +139,22 @@ const FileBrowser = () => {
     getFiles();
   }, []);
 
+  useEffect(() => {
+    if (selected.length === 0) return;
+    setTimeout(() => {
+      treeFocus.current[parseInt(idMap[value])].focus();
+    }, 250);
+  }, [selected]);
+
+  let clickTime = new Date();
   const handleToggle = (event, ids) => {
+    let current = new Date();
+    if (event.target.className === "MuiTreeItem-label") {
+      let diff = current.getTime() - clickTime.getTime();
+      clickTime = new Date();
+      if (diff > 250) return;
+    }
+    clickTime = new Date();
     setExpanded(ids);
   };
 
@@ -124,53 +171,94 @@ const FileBrowser = () => {
     );
   };
 
+  const makeExpandedView = (pathInfo) => {
+    let tmp = ["0", "1", ...expanded];
+    let spt = pathInfo.split("/");
+    let tmpPath = "D:";
+    for (let i = 1; i < spt.length; i++) {
+      tmpPath += `/${spt[i]}`;
+
+      if (idMap[tmpPath] === undefined) continue;
+      if (tmp.includes(idMap[tmpPath])) continue;
+
+      tmp.push(idMap[tmpPath]);
+    }
+
+    setSelected(idMap[pathInfo]);
+    setExpanded([...tmp]);
+  };
+
+  const defaultProps = {
+    options: dirList,
+    getOptionLabel: (option) => option,
+  };
+
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "25% 1% auto",
-        gridGap: "25px",
-        width: "100%",
-      }}
-    >
-      {/* <button onClick={getFiles}>test</button> */}
-      <div>
-        <a
-          href="https://bloodstrawberry.tistory.com/1175"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Node Server 구현 필요
-        </a>
-        <Box sx={{ mb: 1 }}>
-          <Button onClick={handleExpandClick}>
-            {expanded.length === 0 ? "Expand all" : "Collapse all"}
-          </Button>
-        </Box>
-        <TreeView
-          expanded={expanded}
-          onNodeToggle={handleToggle}
-          selected={selected}
-          onNodeSelect={handleSelect}
-          aria-label="file system navigator"
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          sx={{ height: 500, overflowX: "hidden" }}
-          //sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: "auto" }}
-        >
-          {makeTreeItem(treeInfo, "")}
-        </TreeView>
-      </div>
-      <div style={{ borderRight: "2px solid black" }} />
-      <div>
-        {fileUi.map((f, idx) => (
-          <FileUI
-            key={idx}
-            pathInfo={f}
-            idMap={idMap}
-            tvfunc={{ expanded, setExpanded, setSelected, sortFileUI }}
-          />
-        ))}
+    <div>
+      <Stack spacing={1} sx={{ width: "80%", marginLeft: 5, paddingBottom: 3 }}>
+        <Autocomplete
+          {...defaultProps}
+          id="auto-complete"
+          autoComplete
+          includeInputInList
+          value={value}
+          onChange={(event, newValue) => {
+            setValue(newValue);
+            getFilesForFileBrowser(`/${newValue}`);
+            makeExpandedView(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Search Files" variant="standard" />
+          )}
+        />
+      </Stack>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "25% 1% auto",
+          gridGap: "25px",
+          width: "100%",
+        }}
+      >
+        {/* <button onClick={getFiles}>test</button> */}
+        <div>
+          {/* <a
+            href="https://bloodstrawberry.tistory.com/1175"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Node Server 구현 필요
+          </a> */}
+          <Box sx={{ mb: 1 }}>
+            <Button onClick={handleExpandClick}>
+              {expanded.length === 0 ? "Expand all" : "Collapse all"}
+            </Button>
+          </Box>
+          <TreeView
+            expanded={expanded}
+            onNodeToggle={handleToggle}
+            selected={selected}
+            onNodeSelect={handleSelect}
+            aria-label="file system navigator"
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+            sx={{ height: 500, overflowX: "hidden" }}
+            //sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: "auto" }}
+          >
+            {makeTreeItem(treeInfo, "")}
+          </TreeView>
+        </div>
+        <div style={{ borderRight: "2px solid black" }} />
+        <div>
+          {fileUi.map((f, idx) => (
+            <FileUI
+              key={idx}
+              pathInfo={f}
+              idMap={idMap}
+              tvfunc={{ expanded, setExpanded, setSelected, sortFileUI }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
