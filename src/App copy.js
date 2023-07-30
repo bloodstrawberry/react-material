@@ -8,7 +8,7 @@ import { Octokit } from "@octokit/rest";
 
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
-let myKey = "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";
+let myKey = "...";
 
 const App = () => {
   const [repo, setRepo] = useState("auto-test");

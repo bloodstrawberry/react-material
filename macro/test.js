@@ -1,4 +1,4 @@
-let myKey = "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";
+let myKey = "...";
 
 const { Octokit } = require("@octokit/rest");
 
