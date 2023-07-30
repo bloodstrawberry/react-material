@@ -1,15 +1,17 @@
 {
-  "files": {
-    "main.css": "/react-material/static/css/main.08fe55ec.css",
-    "main.js": "/react-material/static/js/main.e3fcaa50.js",
-    "static/js/496.8c2d2e0f.chunk.js": "/react-material/static/js/496.8c2d2e0f.chunk.js",
-    "index.html": "/react-material/index.html",
-    "main.08fe55ec.css.map": "/react-material/static/css/main.08fe55ec.css.map",
-    "main.e3fcaa50.js.map": "/react-material/static/js/main.e3fcaa50.js.map",
-    "496.8c2d2e0f.chunk.js.map": "/react-material/static/js/496.8c2d2e0f.chunk.js.map"
-  },
-  "entrypoints": [
-    "static/css/main.08fe55ec.css",
-    "static/js/main.e3fcaa50.js"
-  ]
+  "main.css": "/react-material/static/css/main.370a33a9.chunk.css",
+  "main.js": "/react-material/static/js/main.47afd740.chunk.js",
+  "main.js.map": "/react-material/static/js/main.47afd740.chunk.js.map",
+  "static/js/1.e9a80093.chunk.js": "/react-material/static/js/1.e9a80093.chunk.js",
+  "static/js/1.e9a80093.chunk.js.map": "/react-material/static/js/1.e9a80093.chunk.js.map",
+  "static/css/2.1ca184d7.chunk.css": "/react-material/static/css/2.1ca184d7.chunk.css",
+  "static/js/2.031ef1e7.chunk.js": "/react-material/static/js/2.031ef1e7.chunk.js",
+  "static/js/2.031ef1e7.chunk.js.map": "/react-material/static/js/2.031ef1e7.chunk.js.map",
+  "runtime~main.js": "/react-material/static/js/runtime~main.93473fe9.js",
+  "runtime~main.js.map": "/react-material/static/js/runtime~main.93473fe9.js.map",
+  "static/css/main.370a33a9.chunk.css.map": "/react-material/static/css/main.370a33a9.chunk.css.map",
+  "static/css/2.1ca184d7.chunk.css.map": "/react-material/static/css/2.1ca184d7.chunk.css.map",
+  "index.html": "/react-material/index.html",
+  "precache-manifest.aabac41171cc46d78972b5b9bb1d9c9b.js": "/react-material/precache-manifest.aabac41171cc46d78972b5b9bb1d9c9b.js",
+  "service-worker.js": "/react-material/service-worker.js"
 }
