@@ -139,6 +139,7 @@ const MyAutoComplete = () => {
   // };
 
   const [value, setValue] = useState(null);
+  const [multipleValue, setMultipleValue] = useState([]);
 
   const top100Films10Year = top100Films.map((item) => {
     const year10 = item.year - (item.year % 10);
@@ -180,6 +181,35 @@ const MyAutoComplete = () => {
           )}
         />
       </Stack>
+      <hr style={{borderColor: "black"}} />
+      <Autocomplete
+        multiple
+        id="tags-outlined"
+        options={top100Films}
+        getOptionLabel={(option) => option.title}
+        //defaultValue={[top100Films[13]]}
+        filterSelectedOptions
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="filterSelectedOptions"
+            placeholder="Favorites"
+          />
+        )}
+        onChange={(event, newValue) => {
+          const util = require("util");
+          let str = newValue.map((data) => {
+            if (typeof data === "object") {
+              return util.inspect(data);
+            }
+            return data;
+          });
+
+          console.log(str);
+          setMultipleValue(str);
+        }}
+      />
+      <p>{multipleValue}</p>
     </div>
   );
 };

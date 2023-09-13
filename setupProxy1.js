@@ -3,7 +3,7 @@
 // module.exports = function (app) {
 //   app.use(
 //     createProxyMiddleware("/callback", {
-//       target: "https://api.github.com",
+//       target: "https://github.com",
 //       changeOrigin: true,
 //     })
 //   );
