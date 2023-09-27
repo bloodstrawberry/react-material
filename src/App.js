@@ -12,8 +12,8 @@ import FileBrowser from "./page/FileBrowser";
 import MyAutoComplete from "./page/MyAutoComplete";
 import LoadingBar from "./page/LoadingBar";
 import ToastEditor from "./page/ToastEditor";
-import MyTextEditor from "./page/MyTextEditor";
 import MyHandsonTable from "./page/MyHandsonTable";
+import MyTextEditorToggleButton from "./page/MyTextEditorToggleButton";
 
 const useTitle = (initialTitle) => {
   const [title, setTitle] = useState(initialTitle);
@@ -57,7 +57,7 @@ const App = () => {
           <Link to="/toastEditor">Toast UI Editor</Link>
         </span>
         <span>
-          <Link to="/textEditor">Text Editor</Link>
+          <Link to="/toggle">Toggle Button</Link>
         </span>    
         <span>
           <Link to="/myHandsTable">HandsOnTable</Link>
@@ -73,7 +73,7 @@ const App = () => {
           <Route path="/autoComplete" element={<MyAutoComplete />} />
           <Route path="/loadingBar" element={<LoadingBar />} />
           <Route path="/toastEditor" element={<ToastEditor />} />
-          <Route path="/textEditor" element={<MyTextEditor />} />
+          <Route path="/toggle" element={<MyTextEditorToggleButton />} />
           <Route path="/myHandsTable" element={<MyHandsonTable />} />
         </Routes>
       </div>
