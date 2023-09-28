@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import { styled } from "@mui/material/styles";
 
@@ -13,6 +13,7 @@ import VerticalAlignTopIcon from "@mui/icons-material/VerticalAlignTop";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
+import FormatStrikethroughIcon from "@mui/icons-material/FormatStrikethrough";
 import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Divider from "@mui/material/Divider";
@@ -22,6 +23,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 import { CompactPicker } from "react-color";
+import { useEffect } from "react";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   "& .MuiToggleButtonGroup-grouped": {
@@ -39,28 +41,160 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   },
 }));
 
-const HandsontableToggleButton = () => {
-  const [horizontalAlignment, setHorizontalAlignment] = useState("left");
-  const [verticalAlignment, setVerticalAlignment] = useState("middle");
+const CELL_STYLE_KEY = "CELL_STYLE_KEY";
+
+const HandsontableToggleButton = ({ myHandsOnTable, selectedCell }) => {
+  const [horizontalAlignment, setHorizontalAlignment] = useState("");
+  const [verticalAlignment, setVerticalAlignment] = useState("");
   const [formats, setFormats] = useState(() => []);
 
-  const [showCompactPicker, setShowCompactPicker] = useState(false); 
-  const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 }); 
+  const [showCompactPicker, setShowCompactPicker] = useState(false);
+  const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 });
   const [fontColor, setFontColor] = useState("#000000");
   const [bgColor, setBgColor] = useState("#FFFFFF");
 
+  const getCellInfoBase = () => {
+    let selecetedRangeCells = myHandsOnTable.getSelectedRange();
+    if (selecetedRangeCells === undefined) return undefined;
+
+    let baseCell = selecetedRangeCells[0].from;
+    return myHandsOnTable.getCell(baseCell.row, baseCell.col);
+  };
+
+  const getCellInfoRange = () => {
+    let selecetedRangeCells = myHandsOnTable.getSelectedRange();
+    if (selecetedRangeCells === undefined) return undefined;
+
+    let cellPositions = [];
+    for (let cell of selecetedRangeCells) {
+      for (let r = cell.from.row; r <= cell.to.row; r++) {
+        for (let c = cell.from.col; c <= cell.to.col; c++)
+          cellPositions.push([r, c]);
+      }
+    }
+
+    return cellPositions;
+  };
+
+  const getHorizontalStatus = (className) => {
+    let status = ["htLeft", "htCenter", "htRight"];
+    let current = className.split(" ");
+
+    return current.filter((item) => status.includes(item))[0];
+  };
+
+  const getVerticalStatus = (className) => {
+    let status = ["htTop", "htMiddle", "htBottom"];
+    let current = className.split(" ");
+
+    return current.filter((item) => status.includes(item))[0];
+  };
+
+  const getEmptyArray = () => {
+    let row = myHandsOnTable.getData().length;
+    let col = myHandsOnTable.getData()[0].length;
+    let emptyArray = [];
+
+    for (let r = 0; r < row; r++) {
+      emptyArray[r] = [];
+      for (let c = 0; c < col; c++)
+        emptyArray[r][c] = {
+          className: undefined,
+          style: {
+            fontWeight: undefined,
+            fontStyle: undefined,
+            textDecoration: undefined,
+            color: undefined,
+            backgroundColor: undefined,
+          },
+        };
+    }
+    return emptyArray;
+  };
+
   const handleAlignment = (event, newAlignment, type) => {
     console.log(newAlignment, type);
+
+    let cellPositions = getCellInfoRange();
+    if (cellPositions === undefined) return;
+
     if (type === "horizontal") setHorizontalAlignment(newAlignment);
     else if (type === "vertical") setVerticalAlignment(newAlignment);
+
+    for (let pos of cellPositions) {
+      let cellInfo = myHandsOnTable.getCell(pos[0], pos[1]);
+      let className = cellInfo.className;
+      let split = className.split(" ");
+      if (type === "horizontal") {
+        let horizontal = getHorizontalStatus(className);
+        split = split.filter((item) => item !== horizontal); // 현재 설정 값 삭제
+      } else if (type === "vertical") {
+        let vertical = getVerticalStatus(className);
+        split = split.filter((item) => item !== vertical); // 현재 설정 값 삭제
+      }
+
+      if (newAlignment) split.push(newAlignment); // 새로 설정된 값 추가.
+
+      cellInfo.className = split.join(" ");
+
+      let localCellStyle = localStorage.getItem(CELL_STYLE_KEY);
+      if (localCellStyle === null) {
+        let emptyArray = getEmptyArray();
+        emptyArray[pos[0]][pos[1]].className = cellInfo.className;
+        localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(emptyArray));
+      } else {
+        localCellStyle = JSON.parse(localCellStyle);
+        localCellStyle[pos[0]][pos[1]].className = cellInfo.className;
+        localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(localCellStyle));
+      }
+    }
   };
 
   const handleFormat = (event, newFormats) => {
     console.log(newFormats);
+
+    let cellPositions = getCellInfoRange();
+    if (cellPositions === undefined) return;
+
     setFormats(newFormats);
+
+    for (let pos of cellPositions) {
+      let cellInfo = myHandsOnTable.getCell(pos[0], pos[1]);
+
+      cellInfo.style.fontWeight = newFormats.includes("bold") ? "bold" : "";
+      cellInfo.style.fontStyle = newFormats.includes("italic") ? "italic" : "";
+
+      let deco = [];
+      if (newFormats.includes("underline")) deco.push("underline");
+      if (newFormats.includes("line-through")) deco.push("line-through");
+
+      cellInfo.style.textDecoration = deco.join(" ");
+
+      let localCellStyle = localStorage.getItem(CELL_STYLE_KEY);
+      if (localCellStyle === null) {
+        let emptyArray = getEmptyArray();
+        emptyArray[pos[0]][pos[1]].style.fontWeight = cellInfo.style.fontWeight;
+        emptyArray[pos[0]][pos[1]].style.fontStyle = cellInfo.style.fontStyle;
+        emptyArray[pos[0]][pos[1]].style.textDecoration =
+          cellInfo.style.textDecoration;
+        localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(emptyArray));
+      } else {
+        localCellStyle = JSON.parse(localCellStyle);
+        localCellStyle[pos[0]][pos[1]].style.fontWeight =
+          cellInfo.style.fontWeight;
+        localCellStyle[pos[0]][pos[1]].style.fontStyle =
+          cellInfo.style.fontStyle;
+        localCellStyle[pos[0]][pos[1]].style.textDecoration =
+          cellInfo.style.textDecoration;
+        localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(localCellStyle));
+      }
+    }
   };
 
   const handleToggleCompactPicker = (event, type) => {
+    let cellPositions = getCellInfoRange();
+    if (cellPositions === undefined) return;
+
     const iconButton = event.currentTarget;
     const rect = iconButton.getBoundingClientRect();
     const pickerTop = rect.bottom + window.scrollY;
@@ -71,12 +205,47 @@ const HandsontableToggleButton = () => {
   };
 
   const handleChangeComplete = (color, event) => {
+    let cellPositions = getCellInfoRange();
+    if (cellPositions === undefined) return;
+
     let colorType = formats.includes("fontColor") ? "fontColor" : "bgColor";
 
     console.log(colorType, color.hex);
 
     if (colorType === "fontColor") setFontColor(color.hex);
     else setBgColor(color.hex);
+
+    for (let pos of cellPositions) {
+      let cellInfo = myHandsOnTable.getCell(pos[0], pos[1]);
+
+      if (colorType === "fontColor") {
+        cellInfo.style.color = color.hex;
+
+        let localCellStyle = localStorage.getItem(CELL_STYLE_KEY);
+        if (localCellStyle === null) {
+          let emptyArray = getEmptyArray();
+          emptyArray[pos[0]][pos[1]].style.color = color.hex;
+          localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(emptyArray));
+        } else {
+          localCellStyle = JSON.parse(localCellStyle);
+          localCellStyle[pos[0]][pos[1]].style.color = color.hex;
+          localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(localCellStyle));
+        }
+      } else {
+        cellInfo.style.backgroundColor = color.hex;
+
+        let localCellStyle = localStorage.getItem(CELL_STYLE_KEY);
+        if (localCellStyle === null) {
+          let emptyArray = getEmptyArray();
+          emptyArray[pos[0]][pos[1]].style.backgroundColor = color.hex;
+          localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(emptyArray));
+        } else {
+          localCellStyle = JSON.parse(localCellStyle);
+          localCellStyle[pos[0]][pos[1]].style.backgroundColor = color.hex;
+          localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(localCellStyle));
+        }
+      }
+    }
   };
 
   const getColorPicker = () => {
@@ -98,16 +267,40 @@ const HandsontableToggleButton = () => {
     setShowCompactPicker(false);
   };
 
+  const setButtonState = () => {
+    if (myHandsOnTable === undefined) return;
+
+    let cellInfo = getCellInfoBase();
+    let className = cellInfo.className;
+    let horizontal = getHorizontalStatus(className) || ""; // undefined 처리
+    let vertical = getVerticalStatus(className) || "";
+
+    setHorizontalAlignment(horizontal);
+    setVerticalAlignment(vertical);
+
+    let fontWeight = cellInfo.style.fontWeight;
+    let fontStyle = cellInfo.style.fontStyle;
+    let textDecoration = cellInfo.style.textDecoration.split(" ");
+
+    setFormats([fontWeight, fontStyle, ...textDecoration]);
+    setFontColor(cellInfo.style.color);
+    setBgColor(cellInfo.style.backgroundColor);
+  };
+
+  useEffect(() => {
+    setButtonState();
+  }, [selectedCell]);
+
   return (
     <div>
-      <Box sx={{ m: 2 }}>
+      <Box sx={{ m: 2, marginBottom: 5 }}>
         <Paper
           elevation={0}
           sx={{
             display: "flex",
             border: (theme) => `1px solid ${theme.palette.divider}`,
             flexWrap: "wrap",
-            width: "540px",
+            width: "580px",
           }}
         >
           <StyledToggleButtonGroup
@@ -119,13 +312,13 @@ const HandsontableToggleButton = () => {
             }
             aria-label="text alignment"
           >
-            <ToggleButton value="left" aria-label="left aligned">
+            <ToggleButton value="htLeft" aria-label="left aligned">
               <FormatAlignLeftIcon />
             </ToggleButton>
-            <ToggleButton value="center" aria-label="centered">
+            <ToggleButton value="htCenter" aria-label="centered">
               <FormatAlignCenterIcon />
             </ToggleButton>
-            <ToggleButton value="right" aria-label="right aligned">
+            <ToggleButton value="htRight" aria-label="right aligned">
               <FormatAlignRightIcon />
             </ToggleButton>
             {/* <ToggleButton value="justify" aria-label="justified">
@@ -142,14 +335,14 @@ const HandsontableToggleButton = () => {
             }
             aria-label="text alignment"
           >
-            <ToggleButton value="up" aria-label="left aligned">
-              <VerticalAlignBottomIcon />
+            <ToggleButton value="htTop" aria-label="top aligned">
+              <VerticalAlignTopIcon />
             </ToggleButton>
-            <ToggleButton value="middle" aria-label="centered">
+            <ToggleButton value="htMiddle" aria-label="middle">
               <VerticalAlignCenterIcon />
             </ToggleButton>
-            <ToggleButton value="bottom" aria-label="right aligned">
-              <VerticalAlignTopIcon />
+            <ToggleButton value="htBottom" aria-label="bottom aligned">
+              <VerticalAlignBottomIcon />
             </ToggleButton>
           </StyledToggleButtonGroup>
 
@@ -167,14 +360,17 @@ const HandsontableToggleButton = () => {
             <ToggleButton value="italic" aria-label="italic">
               <FormatItalicIcon />
             </ToggleButton>
-            <ToggleButton value="underlined" aria-label="underlined">
+            <ToggleButton value="underline" aria-label="underline">
               <FormatUnderlinedIcon />
+            </ToggleButton>
+            <ToggleButton value="line-through" aria-label="line-through">
+              <FormatStrikethroughIcon />
             </ToggleButton>
 
             <ToggleButton
               value="fontColor"
               aria-label="fontColor"
-              onClick={(e) => handleToggleCompactPicker(e, "fontColor")} 
+              onClick={(e) => handleToggleCompactPicker(e, "fontColor")}
             >
               <ColorizeIcon />
               <ArrowDropDownIcon />

@@ -103,6 +103,7 @@ const MaterialTable = () => {
 
   const handleColumnOrderChange = (value) => {
     setColumnOrder(value);
+    console.log(columnOrder);
 
     console.log(value);
 

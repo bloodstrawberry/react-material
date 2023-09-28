@@ -55,9 +55,6 @@ const initData = () => {
   return table;
 };
 
-// 최적화 https://handsontable.com/docs/6.2.2/tutorial-good-practices.html
-// useState 예시 https://handsontable.com/docs/6.2.2/frameworks-wrapper-for-react-simple-examples.html
-
 let searchResultCount = 0;
 function searchResultCounter(instance, row, col, value, result) {
   const DEFAULT_CALLBACK = function(instance, row, col, data, testResult) {
@@ -80,10 +77,12 @@ function redRenderer(instance, td) {
 const MY_OPTIONS = "MY_OPTIONS";
 const COMMENTS_KEY = "COMMENTS_KEY";
 const MERGE_CELLS_KEY = "MERGE_CELLS_KEY";
+const CELL_STYLE_KEY = "CELL_STYLE_KEY";
 
 const CustomHansOnTable = ({ myOptions }) => {
   const [myHandsOnTable, setMyHandsOnTable] = useState();
   const [displayCellInfo, setDisplaySetInfo] = useState("");
+  const [selectedCell, setSelectedCell] = useState([0, 0]);
 
   const getComments = () => {
     let comments = localStorage.getItem(COMMENTS_KEY);
@@ -115,7 +114,13 @@ const CustomHansOnTable = ({ myOptions }) => {
 
     let value = myTable.getValue() || "";
     setDisplaySetInfo(value);
+
+    setSelectedCell([selectedLast[0], selectedLast[1]]);
   };
+
+  const localCellStyle = localStorage.getItem(CELL_STYLE_KEY)
+    ? JSON.parse(localStorage.getItem(CELL_STYLE_KEY))
+    : null;
 
   const options = {
     data, // initData(),
@@ -136,7 +141,7 @@ const CustomHansOnTable = ({ myOptions }) => {
     autoWrapRow: true /* 마지막 셀 옆에서 다음 셀 처음으로 이동 */,
     dragToScroll: true /* 표를 클릭 후 드래그를 할 때, 같이 스크롤 되는지 여부 */,
     persistentState: false /* 열 정렬 상태, 열 위치 및 열 크기를 로컬 스토리지에 저장 */,
-    outsideClickDeselects: true /* 셀 외부 클릭 시, 셀 선택 해제 */,
+    outsideClickDeselects: false /* 셀 외부 클릭 시, 셀 선택 해제 */,
     readOnly: false /* true : 모든 셀을 readOnly로 설정*/,
     enterBeginsEditing: true /* true : 엔터 클릭 시 편집 모드, false : 다음 셀로 이동 */,
     copyable: true /* 복사 가능 여부 */,
@@ -182,7 +187,7 @@ const CustomHansOnTable = ({ myOptions }) => {
 
     /* Customizing Options */
     colWidths: 60 /* 특정 위치 너비 변경 : [60, 120, 60, 60, 60, 60, 60] */,
-    rowHeights : 25,
+    rowHeights: 25,
     // placeholder: 'Empty',
     // columnSorting: {
     //   indicator: true, /* default true, 정렬 순서 표시 마크 (↑↓) on / off */
@@ -202,7 +207,6 @@ const CustomHansOnTable = ({ myOptions }) => {
     //   // },
     // },
 
-    //comments: true, // 탭을 누르면 어느정도 해결되긴함...
     comments: {
       displayDelay: 1000 /* 1초 뒤에 메모가 on */,
     },
@@ -261,36 +265,26 @@ const CustomHansOnTable = ({ myOptions }) => {
     //       selectOptions: ['Kia', 'Nissan', 'Toyota', 'Honda']
     //     },
     //   ],
+    
+    cells: function(row, col, prop) {
+      if (localCellStyle === null) return {};
 
-    // cell: [
-    //   {row: 1, col: 1, readOnly: true}
-    // ],
+      let cellProperties = {};
 
-    // cells: function(row, col, prop) {
-    //   let cellProperties = {};
+      cellProperties.className =
+        localCellStyle[row][col].className || "htCenter htMiddle"; // undefined 처리
 
-    //   if (row === 1 && col === 1) {
-    //     //cellProperties.readOnly = true;
-    //     cellProperties.wordWrap = true;
-    //     cellProperties.className = "htCenter htPercent";
-    //     //cellProperties.tooltip
-    //     cellProperties.renderer = function(instance, td) {
-    //       Handsontable.renderers.TextRenderer.apply(this, arguments);
-    //       //td.style.backgroundColor = "red"; // or getColor(row, col) 구현
-    //       td.style.color = "blue";
-    //       td.style.fontWeight = "bold";
-    //     };
+      cellProperties.renderer = function(instance, td) {
+        Handsontable.renderers.TextRenderer.apply(this, arguments);
+        td.style.fontWeight = localCellStyle[row][col].style.fontWeight || "";
+        td.style.fontStyle = localCellStyle[row][col].style.fontStyle || "";
+        td.style.textDecoration = localCellStyle[row][col].style.textDecoration || "";
+        td.style.color = localCellStyle[row][col].style.color || "#000000";
+        td.style.backgroundColor = localCellStyle[row][col].style.backgroundColor || "#FFFFFF";
+      };
 
-    //     cellProperties.comment = { value: "memo" };
-    //   }
-
-    //   if (col === 5) {
-    //     this.type = "dropdown";
-    //     this.source = ["a", "b", "c"];
-    //   }
-
-    //   return cellProperties;
-    // },
+      return cellProperties;
+    },
 
     licenseKey: "non-commercial-and-evaluation",
   };
@@ -299,28 +293,24 @@ const CustomHansOnTable = ({ myOptions }) => {
     let colLength = table.getData()[0].length;
     let widths = [];
 
-    for (let i = 0; i < colLength; i++)
-      widths.push(table.getColWidth(i));
+    for (let i = 0; i < colLength; i++) widths.push(table.getColWidth(i));
 
     setOptions.cellInfo.colWidths = widths;
 
     localStorage.setItem(MY_OPTIONS, JSON.stringify(setOptions));
-    return;
-  }
+  };
 
   const setRowHeights = (table, setOptions) => {
     let rowLength = table.getData().length;
     let heights = [];
 
-    for (let i = 0; i < rowLength; i++)
-      heights.push(table.getRowHeight(i));
-    
+    for (let i = 0; i < rowLength; i++) heights.push(table.getRowHeight(i));
+
     setOptions.cellInfo.rowHeights = heights;
 
     localStorage.setItem(MY_OPTIONS, JSON.stringify(setOptions));
-  }
+  };
 
-  //options.manualColumnMove = false;
   let myTable;
   const makeTable = () => {
     const container = document.getElementById("hot-app");
@@ -332,23 +322,6 @@ const CustomHansOnTable = ({ myOptions }) => {
       ...myOptions.numberOptions,
       ...myOptions.cellInfo,
     });
-    //myTable.helper.createSpreadsheetData(6, 10);
-    //myTable.selectAll();
-
-    //myTable.setCellMeta(1, 1, 'comment', {value :" zzzz"});
-
-    // myTable.addHook('beforeSetCellMeta', function (row, col, key, value) {
-    //   // Handsontable 인스턴스에 접근
-    //   // console.log('Handsontable 인스턴스에 접근:', myTable);
-    //   // console.log(value, value === '');
-    //   // if(value.value === "") {
-    //   //   console.log("here??");
-    //   //   myTable.setCellMeta(row, col, 'comment', {value :"temp"});
-    //   // }
-    //   console.log(row, col, key, value);
-    // });
-
-    //myTable.render();
 
     myTable.addHook("afterMergeCells", function(cellRange, mergeParent, auto) {
       let temp = getMergeCells();
@@ -362,18 +335,18 @@ const CustomHansOnTable = ({ myOptions }) => {
 
     myTable.addHook("afterColumnResize", function(col, width) {
       let localOptions = localStorage.getItem(MY_OPTIONS);
-      
+
       if (localOptions === null) {
         setColWidths(this, myOptions);
         return;
       }
 
       localOptions = JSON.parse(localOptions);
-      if(Array.isArray(localOptions.cellInfo.colWidths) === false) {
+      if (Array.isArray(localOptions.cellInfo.colWidths) === false) {
         setColWidths(this, localOptions);
         return;
       }
-      
+
       localOptions.cellInfo.colWidths[col] = width;
       localStorage.setItem(MY_OPTIONS, JSON.stringify(localOptions));
     });
@@ -387,7 +360,7 @@ const CustomHansOnTable = ({ myOptions }) => {
       }
 
       localOptions = JSON.parse(localOptions);
-      if(Array.isArray(localOptions.cellInfo.rowHeights) === false) {
+      if (Array.isArray(localOptions.cellInfo.rowHeights) === false) {
         setRowHeights(this, localOptions);
         return;
       }
@@ -396,62 +369,29 @@ const CustomHansOnTable = ({ myOptions }) => {
       localStorage.setItem(MY_OPTIONS, JSON.stringify(localOptions));
     });
 
-    //myTable.setCellMeta(1, 1, "className", "");
     myTable.render();
     setMyHandsOnTable(myTable);
-    return;
 
-    let searchField = document.getElementById("search_field");
-    let resultCount = document.getElementById("resultCount");
+    // search 구현
+    // let searchField = document.getElementById("search_field");
+    // let resultCount = document.getElementById("resultCount");
 
-    Handsontable.dom.addEvent(searchField, "keyup", function(event) {
-      searchResultCount = 0;
+    // Handsontable.dom.addEvent(searchField, "keyup", function(event) {
+    //   searchResultCount = 0;
 
-      let search = myTable.getPlugin("search");
-      let queryResult = search.query(this.value);
+    //   let search = myTable.getPlugin("search");
+    //   let queryResult = search.query(this.value);
 
-      console.log(queryResult);
+    //   console.log(queryResult);
 
-      resultCount.innerText = searchResultCount.toString();
-      myTable.render();
-    });
+    //   resultCount.innerText = searchResultCount.toString();
+    //   myTable.render();
+    // });
   };
 
   useEffect(() => {
     makeTable();
   }, [myOptions]);
-
-  const test = () => {
-    //myHandsOnTable.setCellMeta(1, 1, "className", "");
-    myHandsOnTable.render();
-    console.log(myHandsOnTable.getColWidth(1));
-    console.log(myHandsOnTable.getRowHeight(1));
-    let meta = myHandsOnTable.getCellMeta(0, 0);
-    console.log(meta);
-
-    return;
-
-    meta.className = "htLeft";
-
-    console.log(meta.className);
-
-    console.log(meta);
-
-    setMyHandsOnTable(myHandsOnTable);
-    //myHandsOnTable.render();
-    return;
-
-    myHandsOnTable.setCellMeta(1, 1, "backgroundColor", "red");
-    myHandsOnTable.setCellMeta(1, 1, "tooltip", "This is John");
-    // let temp = getMergeCells();
-    // temp.forEach((item) =>
-    //   console.log(
-    //     item.row,
-    //     item.col,
-    //     myHandsOnTable.getCellMeta(item.row, item.col).spanned
-    //   )
-    // );
-  };
 
   const changeFormat = (value) => {
     value = value || "";
@@ -486,7 +426,6 @@ const CustomHansOnTable = ({ myOptions }) => {
 
   return (
     <div>
-      {/* <button onClick={test}>test</button> */}
       <Box sx={{ m: 2 }}>
         <Button
           sx={{ m: 2 }}
@@ -500,7 +439,10 @@ const CustomHansOnTable = ({ myOptions }) => {
         <p>
         <span id="resultCount">0</span> results
       </p> */}
-        <HandsontableToggleButton/>
+        <HandsontableToggleButton
+          myHandsOnTable={myHandsOnTable}
+          selectedCell={selectedCell}
+        />
         <DisplayCellStyle>
           <span>{displayCellInfo}</span>
         </DisplayCellStyle>
