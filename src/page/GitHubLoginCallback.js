@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import queryString from "query-string";
 
+import * as ck from "../cookielibrary.js";
+
 const clientID = process.env.REACT_APP_CLIENT_ID;
 
 const GitHubLoginCallback = ({ loginStatus, setLoginStatus }) => {
@@ -32,9 +34,16 @@ const GitHubLoginCallback = ({ loginStatus, setLoginStatus }) => {
       console.log(avatarUrl);
       console.log(loginID);
 
-      localStorage.setItem("GITHUB_TOKEN", token);
-      localStorage.setItem("AVATAR_URL", avatarUrl);
-      localStorage.setItem("LOGIN_ID", loginID);
+      let options = {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7, // seconds
+        // secure: true, // https 연결에만 전송
+        // httpOnly: true, // 클라이언트에서 read 불가
+      };
+
+      ck.setCookies("GITHUB_TOKEN", token, options);
+      ck.setCookies("AVATAR_URL", avatarUrl, options);
+      ck.setCookies("LOGIN_ID", loginID, options);
       
       setLoginStatus(true);
 

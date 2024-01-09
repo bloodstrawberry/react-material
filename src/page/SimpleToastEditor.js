@@ -49,7 +49,7 @@ const colorSyntaxOptions = {
   ],
 };
 
-let myKey = process.env.REACT_APP_MY_TOKEN;
+let myKey = "";
 
 const SimpleToastEditor = () => {
   const editorRef = useRef(null);

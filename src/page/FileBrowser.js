@@ -87,7 +87,10 @@ const FileBrowser = () => {
     let server = `http://192.168.55.120:3002`;
     let path = `D:\\github\\globfiles\\**`;
 
-    fetch(`${server}/useGlob?path=${path}`)
+    fetch(`${server}/useGlob?path=${path}`,{
+        method: 'GET', // HTTP 요청 방법 (GET, POST 등)
+        //credentials: 'include', // 쿠키를 요청에 포함시키기 위한 옵션
+    })
       .then((res) => res.json())
       .then((data) => makeDirectories(data.findPath));
   };

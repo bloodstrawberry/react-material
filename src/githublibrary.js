@@ -1,7 +1,118 @@
 import axios from "axios";
+import { Octokit } from "@octokit/rest";
+
+import * as ck from "./cookielibrary.js";
+
+const myKey = process.env.REACT_APP_MY_TOKEN;
+const repo = `auto-test`;
+
+const getSHA = async (path) => {
+  const octokit = new Octokit({
+    auth: myKey,
+  });
+
+  try {
+    const result = await octokit.request(
+      `GET /repos/bloodstrawberry/${repo}/contents/${path}`,
+      {
+        owner: "bloodstrawberry",
+        repo: `${repo}`,
+        path: `${path}`,
+      }
+    );
+  
+    return result.data.sha;
+  }
+
+  catch (e) {
+    console.log("error : ", e);
+    return undefined;
+  }
+};
+
+export const fileDelete = async (path) => {
+  let sha = await getSHA(path);
+  if(sha === undefined) return undefined;
+  try {
+    const octokit = new Octokit({
+      auth: myKey,
+    });
+
+    const result = await octokit.request(
+      `DELETE /repos/bloodstrawberry/${repo}/contents/${path}`,
+      {
+        owner: "bloodstrawberry",
+        repo,
+        path,
+        message: "delete!!",
+        sha,
+      }
+    );
+
+    return result;
+  } catch (e) {
+    console.log("hello!!");
+    console.log("error : ", e);
+    return undefined;
+  }
+};
+
+export const fileRead = async (path) => {
+  try {
+    const octokit = new Octokit({
+      auth: myKey,
+    });
+
+    const result = await octokit.request(
+      `GET /repos/bloodstrawberry/${repo}/contents/${path}`,
+      {
+        owner: "bloodstrawberry",
+        repo: `${repo}`,
+        path: `${path}`,
+        encoding: "utf-8",
+        decoding: "utf-8",
+      }
+    );
+    return result;
+  } catch (e) {
+    console.log("error : ", e);
+    return undefined;
+  }
+};
+
+export const fileCreate = async (contents, path) => {
+  const octokit = new Octokit({
+    auth: myKey,
+  });
+
+  try {
+    const result = await octokit.request(
+      `PUT /repos/bloodstrawberry/${repo}/contents/${path}`,
+      {
+        owner: "bloodstrawberry",
+        repo: `${repo}`,
+        path: `${path}`,
+        message: "make comments",
+        committer: {
+          name: "bloodstrawberry",
+          email: "bloodstrawberry@github.com",
+        },
+        content: `${btoa(unescape(encodeURIComponent(`${contents}`)))}`,
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      }
+    );
+
+    return result.status;
+  } catch (e) {
+    console.log("error : ", e);
+    return undefined;
+  }
+};
 
 export const loginCheck = async (setLoginStatus) => {
-  let token = localStorage.getItem("GITHUB_TOKEN");
+  let token = ck.getCookies("GITHUB_TOKEN");
   try {
     const response = await axios.get("https://api.github.com/user", {
       headers: {
@@ -17,7 +128,7 @@ export const loginCheck = async (setLoginStatus) => {
 };
 
 export const getLoginStatus = async () => {
-  let token = localStorage.getItem("GITHUB_TOKEN");
+  let token = ck.getCookies("GITHUB_TOKEN");
   try {
     const response = await axios.get("https://api.github.com/user", {
       headers: {
@@ -25,9 +136,9 @@ export const getLoginStatus = async () => {
       },
     });
     console.log(response);
-    return await true;
+    return true;
   } catch (error) {
     console.error("Error fetching user data:", error);
-    return await false;
+    return false;
   }
 };

@@ -150,7 +150,7 @@ const CustomHansOnTable = ({ myOptions }) => {
     trimWhitespace: false /* 자동 trim() 실행 후 셀에 저장 */,
     contextMenu: true /* 마우스 왼쪽 버튼 클릭 시 컨텍스트 메뉴 */,
     comments: true /* 주석, 메모 기능 context menu에 추가 */,
-    manualColumnFreeze: true /* freezeColumn context menu에 추가 *
+    manualColumnFreeze: true /* freezeColumn context menu에 추가 */,
 
     observeChanges: true,
     afterChangesObserved: () => {

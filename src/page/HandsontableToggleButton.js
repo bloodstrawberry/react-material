@@ -41,8 +41,6 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   },
 }));
 
-const CELL_STYLE_KEY = "CELL_STYLE_KEY";
-
 const HandsontableToggleButton = ({ myHandsOnTable, selectedCell }) => {
   const [horizontalAlignment, setHorizontalAlignment] = useState("");
   const [verticalAlignment, setVerticalAlignment] = useState("");
@@ -90,28 +88,6 @@ const HandsontableToggleButton = ({ myHandsOnTable, selectedCell }) => {
     return current.filter((item) => status.includes(item))[0];
   };
 
-  const getEmptyArray = () => {
-    let row = myHandsOnTable.getData().length;
-    let col = myHandsOnTable.getData()[0].length;
-    let emptyArray = [];
-
-    for (let r = 0; r < row; r++) {
-      emptyArray[r] = [];
-      for (let c = 0; c < col; c++)
-        emptyArray[r][c] = {
-          className: undefined,
-          style: {
-            fontWeight: undefined,
-            fontStyle: undefined,
-            textDecoration: undefined,
-            color: undefined,
-            backgroundColor: undefined,
-          },
-        };
-    }
-    return emptyArray;
-  };
-
   const handleAlignment = (event, newAlignment, type) => {
     console.log(newAlignment, type);
 
@@ -136,17 +112,6 @@ const HandsontableToggleButton = ({ myHandsOnTable, selectedCell }) => {
       if (newAlignment) split.push(newAlignment); // 새로 설정된 값 추가.
 
       cellInfo.className = split.join(" ");
-
-      let localCellStyle = localStorage.getItem(CELL_STYLE_KEY);
-      if (localCellStyle === null) {
-        let emptyArray = getEmptyArray();
-        emptyArray[pos[0]][pos[1]].className = cellInfo.className;
-        localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(emptyArray));
-      } else {
-        localCellStyle = JSON.parse(localCellStyle);
-        localCellStyle[pos[0]][pos[1]].className = cellInfo.className;
-        localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(localCellStyle));
-      }
     }
   };
 
@@ -169,25 +134,6 @@ const HandsontableToggleButton = ({ myHandsOnTable, selectedCell }) => {
       if (newFormats.includes("line-through")) deco.push("line-through");
 
       cellInfo.style.textDecoration = deco.join(" ");
-
-      let localCellStyle = localStorage.getItem(CELL_STYLE_KEY);
-      if (localCellStyle === null) {
-        let emptyArray = getEmptyArray();
-        emptyArray[pos[0]][pos[1]].style.fontWeight = cellInfo.style.fontWeight;
-        emptyArray[pos[0]][pos[1]].style.fontStyle = cellInfo.style.fontStyle;
-        emptyArray[pos[0]][pos[1]].style.textDecoration =
-          cellInfo.style.textDecoration;
-        localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(emptyArray));
-      } else {
-        localCellStyle = JSON.parse(localCellStyle);
-        localCellStyle[pos[0]][pos[1]].style.fontWeight =
-          cellInfo.style.fontWeight;
-        localCellStyle[pos[0]][pos[1]].style.fontStyle =
-          cellInfo.style.fontStyle;
-        localCellStyle[pos[0]][pos[1]].style.textDecoration =
-          cellInfo.style.textDecoration;
-        localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(localCellStyle));
-      }
     }
   };
 
@@ -220,30 +166,8 @@ const HandsontableToggleButton = ({ myHandsOnTable, selectedCell }) => {
 
       if (colorType === "fontColor") {
         cellInfo.style.color = color.hex;
-
-        let localCellStyle = localStorage.getItem(CELL_STYLE_KEY);
-        if (localCellStyle === null) {
-          let emptyArray = getEmptyArray();
-          emptyArray[pos[0]][pos[1]].style.color = color.hex;
-          localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(emptyArray));
-        } else {
-          localCellStyle = JSON.parse(localCellStyle);
-          localCellStyle[pos[0]][pos[1]].style.color = color.hex;
-          localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(localCellStyle));
-        }
       } else {
         cellInfo.style.backgroundColor = color.hex;
-
-        let localCellStyle = localStorage.getItem(CELL_STYLE_KEY);
-        if (localCellStyle === null) {
-          let emptyArray = getEmptyArray();
-          emptyArray[pos[0]][pos[1]].style.backgroundColor = color.hex;
-          localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(emptyArray));
-        } else {
-          localCellStyle = JSON.parse(localCellStyle);
-          localCellStyle[pos[0]][pos[1]].style.backgroundColor = color.hex;
-          localStorage.setItem(CELL_STYLE_KEY, JSON.stringify(localCellStyle));
-        }
       }
     }
   };

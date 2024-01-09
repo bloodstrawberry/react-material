@@ -1,65 +1,73 @@
-const acorn = require("acorn");
+let myKey = "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";
 
-function evaluateCondition(condition, context) {
-  const ast = acorn.parse(condition, { ecmaVersion: "latest" });
+const { Octokit } = require("@octokit/rest");
 
-  function evaluateNode(node) {
-    if (node.type === "LogicalExpression") {
-      const leftValue = evaluateNode(node.left);
-      const rightValue = evaluateNode(node.right);
+const octokit = new Octokit({
+  auth: myKey,
+});
 
-      if (node.operator === "||") { // or
-        return leftValue || rightValue;
-      } else if (node.operator === "&&") { // and
-        return leftValue && rightValue;
-      }
-    } else if (node.type === "BinaryExpression") { // ==, != 
-      const leftValue = evaluateNode(node.left);
-      const rightValue = evaluateNode(node.right);
+async function renameFile() {
+  const owner = "bloodstrawberry";
+  const repo = "auto-test";
+  const oldPath = "test/apitest.txt";
+  const newPath = "test/apitest_new.txt";
 
-      if (node.operator === "==") { 
-        return leftValue == rightValue;
-      } else if (node.operator === "===") {
-        return leftValue === rightValue;
-      } else if (node.operator === "!=") {
-        return leftValue != rightValue;
-      } else if (node.operator === "!==") {
-        return leftValue !== rightValue;
-      } 
-    } else if (node.type === "Identifier") {
-      return context[node.name];
-    } else if (node.type === "Literal") {
-      return node.value;
-    } else if (node.type === "UnaryExpression" && node.operator === "!") {
-      return !evaluateNode(node.argument);
+  const result = await octokit.request(
+    `GET /repos/${owner}/${repo}/contents/${oldPath}`,
+    {
+      owner,
+      repo,
+      path: oldPath,
     }
+  );
 
-    throw new Error("Unsupported node type: " + node.type);
+  console.log(result);
+
+  if(result.status !== 200) {
+    console.log("File Read Error!");
+    return;
+  }
+  
+  const file = result.data;
+
+  const renameResult = await octokit.request(
+    `PUT /repos/${owner}/${repo}/contents/${newPath}`,
+    {
+      owner,
+      repo,
+      path: newPath,
+
+      content: file.content,
+      message: "Rename file",
+      sha: file.sha,
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    }
+  );
+
+  console.log(renameResult);
+  if(renameResult.status !== 201) { // 200인 경우는 이미 존재하는 파일을 덮어씌움.
+    console.log("File Create Error!");
+    return;
   }
 
-  return evaluateNode(ast.body[0].expression);
-}
-
-let tf = [true, false];
-
-const condition =
-  "(((condition1) && (condition2 or condition3))) == condition4";
-
-for (let a = 0; a < 2; a++) {
-  for (let b = 0; b < 2; b++) {
-    for (let c = 0; c < 2; c++) {
-      for (let d = 0; d < 2; d++) {
-        let str = `(((${tf[a]}) && (${tf[b]} || ${tf[c]}))) == ${tf[d]} => `;
-
-        const result = evaluateCondition(condition, {
-          condition1: tf[a],
-          condition2: tf[b],
-          condition3: tf[c],
-          condition4: tf[d],
-        });
-
-        console.log(str + result); 
-      }
+  const deleteResult = await octokit.request(
+    `DELETE /repos/${owner}/${repo}/contents/${oldPath}`,
+    {
+      owner,
+      repo,
+      path: oldPath,
+      message : "delete!!",
+      sha: file.sha,        
     }
+  );
+  
+  console.log(deleteResult);
+  if(deleteResult.status !== 200) {
+    console.log("File Delete Error!");
+    return;
   }
 }
+
+renameFile();
