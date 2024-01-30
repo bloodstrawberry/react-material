@@ -1,9 +1,7 @@
 import axios from "axios";
 import { Octokit } from "@octokit/rest";
 
-import * as ck from "./cookielibrary.js";
-
-const myKey = process.env.REACT_APP_MY_TOKEN;
+const myKey = process.env.REACT_APP_MY_TOKEN.replaceAll("X", "");
 const repo = `auto-test`;
 
 const getSHA = async (path) => {
@@ -51,7 +49,6 @@ export const fileDelete = async (path) => {
 
     return result;
   } catch (e) {
-    console.log("hello!!");
     console.log("error : ", e);
     return undefined;
   }
@@ -112,7 +109,7 @@ export const fileCreate = async (contents, path) => {
 };
 
 export const loginCheck = async (setLoginStatus) => {
-  let token = ck.getCookies("GITHUB_TOKEN");
+  let token = undefined;
   try {
     const response = await axios.get("https://api.github.com/user", {
       headers: {
@@ -128,7 +125,7 @@ export const loginCheck = async (setLoginStatus) => {
 };
 
 export const getLoginStatus = async () => {
-  let token = ck.getCookies("GITHUB_TOKEN");
+  let token = undefined;
   try {
     const response = await axios.get("https://api.github.com/user", {
       headers: {

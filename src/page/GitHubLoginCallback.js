@@ -1,15 +1,16 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import * as actions from "../actions/loginAction";
 
 import axios from "axios";
 import queryString from "query-string";
 
-import * as ck from "../cookielibrary.js";
-
 const clientID = process.env.REACT_APP_CLIENT_ID;
 
-const GitHubLoginCallback = ({ loginStatus, setLoginStatus }) => {
+const GitHubLoginCallback = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const getAccessToken = async (code) => {
     try {
@@ -34,23 +35,15 @@ const GitHubLoginCallback = ({ loginStatus, setLoginStatus }) => {
       console.log(avatarUrl);
       console.log(loginID);
 
-      let options = {
-        path: "/",
-        maxAge: 60 * 60 * 24 * 7, // seconds
-        // secure: true, // https 연결에만 전송
-        // httpOnly: true, // 클라이언트에서 read 불가
-      };
+      let loginInfo = {
+        avatarUrl, loginID
+      }
 
-      ck.setCookies("GITHUB_TOKEN", token, options);
-      ck.setCookies("AVATAR_URL", avatarUrl, options);
-      ck.setCookies("LOGIN_ID", loginID, options);
-      
-      setLoginStatus(true);
-
-      navigate('/',  { replace: true });
+      dispatch(actions.login(loginInfo));
+      localStorage.setItem("LOGIN_INFO", JSON.stringify(loginInfo));     
+      navigate('/',  { replace: true }); 
     } catch (e) {
-      console.log(e);
-      setLoginStatus(false);
+      console.log("error ", e);
     }
   };
 
@@ -62,7 +55,7 @@ const GitHubLoginCallback = ({ loginStatus, setLoginStatus }) => {
 
   useEffect(() => getCode(), []);
 
-  return <div>{loginStatus ? "로그인 성공!" : "로그인 실패..."}</div>;
+  return <div>{"로그인 시도 중..."}</div>;
 };
 
 export default GitHubLoginCallback;

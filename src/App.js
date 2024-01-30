@@ -17,11 +17,16 @@ import ReactComments from "./page/ReactComments";
 import GitHubLoginCallBack from "./page/GitHubLoginCallback";
 
 import * as gh from "./githublibrary.js";
-import * as ck from "./cookielibrary.js";
-import ReactCookie from "./page/ReactCookie.js";
+
 import IPConverter from "./page/IPConverter.js";
 import ToastMailer from "./page/ToastMailer.js";
-import TableCRUD from "./page/TableCRUD";
+
+import ReactImageList from "./page/ReactImageList.js";
+import Capture from "./page/Capture.js";
+import SimpleToastEditor from "./page/SimpleToastEditor.js";
+import MyStepper from "./page/MyStepper.js";
+import Router1 from "./page/Router1.js";
+import CKEditorVer4 from "./page/CKEditorVer4";
 
 const useTitle = (initialTitle) => {
   const [title, setTitle] = useState(initialTitle);
@@ -37,39 +42,24 @@ const App = () => {
   const [loginStatus, setLoginStatus] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
-  useEffect(() => {
-    if(loginStatus === false) return;
-    let loginID = ck.getCookies("LOGIN_ID");
-    let url = ck.getCookies("AVATAR_URL");
-    let profile = `https://github.com/${loginID}`;
-
-    setCurrentUser({
-      currentUserId: loginID,
-      currentUserImg: url,
-      currentUserProfile: profile,
-      currentUserFullName: loginID,
-    });
-  }, [loginStatus]);
-
-
   const titleUpdator = useTitle("Loading...");
   setTimeout(() => titleUpdator("Home"), 1000);
 
-  useEffect(() => {
-    gh.loginCheck(setLoginStatus);
-  }, []);
-
   return (
     <div className="App">
+      {/* <img
+        src="https://github.com/bloodstrawberry/auto-test/raw/main/KakaoTalk_20230212_143204341_01.jpg"
+        //https://github.com/bloodstrawberry/auto-test/blob/main/KakaoTalk_20230212_143204341_01.jpg 이지만 blob -> raw로 변경
+        //"https://github.com/bloo/리포지토리/raw/브랜치명/이미지경로/이미지파일.jpg"
+        alt="alt"
+        title="title"
+      /> */}
       <div className="router">
         <span>
           <Link to="/btn">Button Test</Link>
         </span>
         <span>
           <Link to="/mtable">Material Table</Link>
-        </span>
-        <span>
-          <Link to="/crud">CRUD Table</Link>
         </span>
         <span>
           <Link to="/tvexp">Tree View</Link>
@@ -89,6 +79,10 @@ const App = () => {
         <span>
           <Link to="/toastEditor">Toast UI Editor</Link>
         </span>
+        {/* <span>
+          <Link to="/ck4">CK Editor v4</Link>
+        </span> */}
+        
         <span>
           <Link to="/toggle">Toggle Button</Link>
         </span>
@@ -101,15 +95,26 @@ const App = () => {
         <span>
           <Link to="/converter">IP Converter</Link>
         </span>
-        <span>
+        {/* <span>
           <Link to="/mail">Toast Mail</Link>
+        </span> */}
+        <span>
+          <Link to="/capture">Capture</Link>
+        </span>
+        <span>
+          <Link to="/stepper">Stepper</Link>
         </span>
         
         
         {/* <span>
+          <Link to="/imageList">Image List</Link>
+        </span> */}
+
+        
+
+        {/* <span>
           <Link to="/cookie">Cookie</Link>
         </span> */}
-        
       </div>
       <div>
         <Routes>
@@ -122,7 +127,15 @@ const App = () => {
           <Route path="/loadingBar" element={<LoadingBar />} />
           <Route path="/toastEditor" element={<ToastEditor />} />
           <Route path="/toggle" element={<MyTextEditorToggleButton />} />
-          <Route path="/myHandsTable" element={<MyHandsonTable />} />      
+          <Route path="/myHandsTable" element={<MyHandsonTable />} />
+          <Route path="/capture" element={<Capture />} />
+          <Route path="/stepper" element={<MyStepper />} />
+          <Route path="/ck4" element={<CKEditorVer4 />} />
+          <Route path="/r1" element={<Router1 />} />
+          
+{/*           
+          <Route path="/imageList" element={<ReactImageList />} /> */}
+          
           <Route
             path="/comments"
             element={<ReactComments currentUser={currentUser} />}
@@ -136,9 +149,8 @@ const App = () => {
               />
             }
           />
-          <Route path="/cookie" element={<ReactCookie />} />
+
           <Route path="/converter" element={<IPConverter />} />
-          <Route path="/crud" element={<TableCRUD />} />
           
           {/* <Route path="/mail" element={<ToastMailer />} /> */}
         </Routes>

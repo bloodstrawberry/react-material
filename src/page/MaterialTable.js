@@ -143,7 +143,7 @@ const MaterialTable = () => {
           columnOrder: initOrdering,
         }}
         data={data}
-        enablePinning
+        enableColumnPinning
         enableColumnOrdering
         onColumnOrderChange={handleColumnOrderChange}
       />

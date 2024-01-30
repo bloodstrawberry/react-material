@@ -22,6 +22,8 @@ import colorSyntax from "@toast-ui/editor-plugin-color-syntax";
 import "@toast-ui/editor-plugin-table-merged-cell/dist/toastui-editor-plugin-table-merged-cell.css";
 import tableMergedCell from "@toast-ui/editor-plugin-table-merged-cell";
 
+import html2pdf from 'html2pdf.js';
+
 const colorSyntaxOptions = {
   preset: [
     "#333333", "#666666", "#FFFFFF", "#EE2323", "#F89009", "#009A87", "#006DD7", "#8A3DB6",
@@ -43,14 +45,15 @@ const ToastEditor = () => {
 
   const handleSave = () => {
     let markDownContent = editorRef.current.getInstance().getMarkdown();
-    //let htmlContent = editorRef.current.getInstance().getHTML();
+    let htmlContent = editorRef.current.getInstance().getHTML();
     console.log(markDownContent);
+    console.log(htmlContent);
     localStorage.setItem(CONTENT_KEY, markDownContent);
   };
 
   useEffect(() => {
     let item = localStorage.getItem(CONTENT_KEY);
-    
+
     if (editMode === false) {
       const viewer = new Viewer({
         el: document.querySelector(".toast-editor-viewer"),
@@ -60,17 +63,32 @@ const ToastEditor = () => {
         plugins: [tableMergedCell],
       });
 
-      if(item) viewer.setMarkdown(item);
+      if (item) viewer.setMarkdown(item);
       else viewer.setMarkdown(initData);
     }
 
     if (item) {
       if (editorRef.current) editorRef.current.getInstance().setMarkdown(item);
     } else {
-      
-      if (editorRef.current) editorRef.current.getInstance().setMarkdown(initData);
+      if (editorRef.current)
+        editorRef.current.getInstance().setMarkdown(initData);
     }
   }, [editMode]);
+
+  const downloadPDF = () => {
+    const element = document.getElementById("pdf-download"); // PDF로 변환할 요소 선택
+    html2pdf(element, {
+      filename: "Toast_Editor.pdf", // default : file.pdf
+      html2canvas: { scale: 2 }, // 캡처한 이미지의 크기를 조절, 값이 클수록 더 선명하다.
+      jsPDF: { 
+        format: "b4",  // 종이 크기 형식
+        orientation: "portrait", // or landscape : 가로
+      },
+      callback: () => {
+        console.log("PDF 다운로드 완료");
+      },
+    });
+  };
 
   return (
     <div>
@@ -94,7 +112,16 @@ const ToastEditor = () => {
           저장하기
         </Button>
 
-        {editMode === false && <div className="toast-editor-viewer"></div>}
+        <Button
+          variant="outlined"
+          color="warning"
+          sx={{ m: 1 }}
+          onClick={downloadPDF}
+        >
+          PDF Download
+        </Button>
+
+        {editMode === false && <div id="pdf-download" className="toast-editor-viewer"></div>}
 
         {editMode === true && (
           <Editor
