@@ -1,32 +1,31 @@
 import React from "react";
+import axios from "axios";
 
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+const FileUpload = () => {
+  const handleUpload = async (e) => {
+    let files = e.target.files;
+    let server = `http://192.168.55.120:3002/router_test`;
 
-const CKEditorVer4 = () => {
+    const formData = new FormData();
+    const config = {
+      header: { "content-type": "multipart/form-data" },
+    };
+
+    for (let file of files) {
+      // encodeURIComponent : 한글 파일 처리
+      formData.append("files", file, encodeURIComponent(file.name)); 
+    }
+
+    const response = await axios.post(server, formData, config);
+
+    console.log(response);
+  };
+
   return (
     <div>
-      <h1>zzzzzzzzz</h1>
-      <CKEditor
-        editor={ClassicEditor}
-        data="<p>Hello from CKEditor 5!</p>"
-        onReady={(editor) => {
-          // You can store the "editor" and use when it is needed.
-          console.log("Editor is ready to use!", editor);
-        }}
-        onChange={(event, editor) => {
-          const data = editor.getData();
-          console.log({ event, editor, data });
-        }}
-        onBlur={(event, editor) => {
-          console.log("Blur.", editor);
-        }}
-        onFocus={(event, editor) => {
-          console.log("Focus.", editor);
-        }}
-      />
+      <input type="file" multiple onChange={handleUpload} />
     </div>
   );
 };
 
-export default CKEditorVer4;
+export default FileUpload;

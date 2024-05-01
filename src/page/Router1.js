@@ -1,17 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-import * as gh from "../githublibrary.js";
+import useSWR, { SWRConfig } from "swr";
+import ParentComponent from "./ParentComponent.js";
 
-const Router1= () => {
-  const test = async () => {
-    let test = await gh.fileRead("README.md");
-    console.log(test);
-  }
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+const Router1 = () => {
+  const { data } = useSWR("/api/value",     { fallbackData: { value: 0 } });
+
+  useEffect(() =>{
+    console.log("here!");
+    console.log(data);
+  }, []);
 
   return (
-    <div>
-      <p>Router 1</p>
-      <button onClick={test}>test</button>      
+    <div style={{ margin: 20 }}>
+      <ParentComponent />
     </div>
   );
 };

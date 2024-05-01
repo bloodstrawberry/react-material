@@ -55,6 +55,9 @@ const App = () => {
         title="title"
       /> */}
       <div className="router">
+      <span>
+          <Link to="/btn">Button Test</Link>
+        </span>
         <span>
           <Link to="/btn">Button Test</Link>
         </span>
@@ -79,11 +82,12 @@ const App = () => {
         <span>
           <Link to="/toastEditor">Toast UI Editor</Link>
         </span>
-        {/* <span>
-          <Link to="/ck4">CK Editor v4</Link>
-        </span> */}
-        
+
         <span>
+          <Link to="/test">Test</Link>
+        </span>
+        
+        {/* <span>
           <Link to="/toggle">Toggle Button</Link>
         </span>
         <span>
@@ -95,15 +99,15 @@ const App = () => {
         <span>
           <Link to="/converter">IP Converter</Link>
         </span>
-        {/* <span>
+        <span>
           <Link to="/mail">Toast Mail</Link>
-        </span> */}
+        </span> 
         <span>
           <Link to="/capture">Capture</Link>
         </span>
         <span>
           <Link to="/stepper">Stepper</Link>
-        </span>
+        </span> */}
         
         
         {/* <span>
@@ -130,7 +134,7 @@ const App = () => {
           <Route path="/myHandsTable" element={<MyHandsonTable />} />
           <Route path="/capture" element={<Capture />} />
           <Route path="/stepper" element={<MyStepper />} />
-          <Route path="/ck4" element={<CKEditorVer4 />} />
+          <Route path="/test" element={<CKEditorVer4 />} />
           <Route path="/r1" element={<Router1 />} />
           
 {/*           
